@@ -1,17 +1,38 @@
 <template>
   <div id="app">
-    <PageLayer></PageLayer>
+    <PageLayer v-if="userAuthority" />
+    <Login v-if="!userAuthority" />
   </div>
 </template>
 
 <script>
-import PageLayer from './components/pageLayer.vue'
+import { mapGetters } from "vuex";
+import PageLayer from "./components/pageLayer.vue";
+import Login from "./pages/login.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    PageLayer
-  }
-}
+    PageLayer,
+    Login,
+  },
+
+  computed: {
+    ...mapGetters(["userAuthority"]),
+  },
+
+  mounted() {
+    this.$router.push("/login");
+
+    const store = this.$store;
+    if (sessionStorage.getItem("store")) {
+      const s = sessionStorage.getItem("store");
+      store.replaceState(Object.assign({}, store.state, JSON.parse(s)));
+    }
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem("store", JSON.stringify(store.state));
+    });
+  },
+};
 </script>
 
 <style>

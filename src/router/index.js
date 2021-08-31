@@ -5,7 +5,6 @@ import Users from '../pages/users.vue'
 import Imgs from '../pages/imgs.vue'
 import Financial from '../pages/financial.vue'
 
-
 const routes = [
   {
     path: '/',
