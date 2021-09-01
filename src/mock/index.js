@@ -7,8 +7,8 @@ Mock.setup({
 Mock.mock("/login", () => {
   const login = {
     status: "ok",
-    userAuthority: "normal",
-    time: Date.now()
+    userAuthority: "root",
+    time: Date.now(),
   }
   return login
 })

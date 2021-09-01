@@ -33,8 +33,9 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { post } from "../axios/index.js";
+import dynamicRoutes from "../router/dynamicRoutes";
 
 export default {
   data() {
@@ -43,13 +44,16 @@ export default {
       password: "",
     };
   },
+  computed: {
+    ...mapGetters(["routesData", "userAuthority"]),
+  },
   methods: {
     refreshPassword() {
       this.username = "";
       this.password = "";
     },
 
-    ...mapMutations(["change_user_authority"]),
+    ...mapMutations(["change_user_authority", "change_routes_data"]),
 
     onClickLogin() {
       const loginData = {
@@ -57,18 +61,37 @@ export default {
         password: this.password,
       };
       post("/login", loginData).then((res) => {
-        console.log(res)
-        if (res.status == "ok") {
-          this.$message.success("login successfully");
-          this.change_user_authority(res.userAuthority);
-        }
+        this.userLogin(res);
       });
     },
-  },
 
-  mounted(){
-    this.$router.push('/login')
-  }
+    userLogin(res) {
+      console.log(res);
+      if (res.status === "ok") {
+        this.$message.success("login successfully");
+        this.change_user_authority(res.userAuthority);
+        this.addRoutes(dynamicRoutes, res.userAuthority);
+        this.$router.push("/system");
+      }
+    },
+
+    addRoutes(routesData, userAuthority) {
+      let children = [];
+      if (userAuthority === "root") {
+        children = routesData.children;
+      } else {
+        children = routesData.children.filter((child) => {
+          return child.meta.level === "normal";
+        });
+      }
+      let data = routesData;
+      data.children = children;
+      this.change_routes_data(data);
+      sessionStorage.setItem("routesData", JSON.stringify(data));
+      this.$router.addRoutes([data]);
+      console.log(this.$router)
+    },
+  },
 };
 </script>
 

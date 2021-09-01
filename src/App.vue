@@ -1,36 +1,39 @@
 <template>
   <div id="app">
-    <PageLayer v-if="userAuthority" />
-    <Login v-if="!userAuthority" />
+    <router-view />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import PageLayer from "./components/pageLayer.vue";
-import Login from "./pages/login.vue";
+import dynamicRoutes from "./router/dynamicRoutes"
 export default {
   name: "App",
-  components: {
-    PageLayer,
-    Login,
+  methods: {
+    addRoutes(routesData, userAuthority) {
+      let children = [];
+      if (userAuthority === "root") {
+        children = routesData.children;
+      } else {
+        children = routesData.children.filter((child) => {
+          return child.meta.level === "normal";
+        });
+      }
+      let data = JSON.parse(JSON.stringify(routesData));
+      data.children = children;
+      this.$router.addRoutes([data]);
+      console.log(data)
+    },
+  },
+
+  mounted() {
+    addEventListener("onunload", () => {
+      this.addRoutes(dynamicRoutes, this.userAuthority)
+    })
   },
 
   computed: {
     ...mapGetters(["userAuthority"]),
-  },
-
-  mounted() {
-    this.$router.push("/login");
-
-    const store = this.$store;
-    if (sessionStorage.getItem("store")) {
-      const s = sessionStorage.getItem("store");
-      store.replaceState(Object.assign({}, store.state, JSON.parse(s)));
-    }
-    window.addEventListener("beforeunload", () => {
-      sessionStorage.setItem("store", JSON.stringify(store.state));
-    });
   },
 };
 </script>

@@ -1,34 +1,21 @@
 import VueRouter from "vue-router";
-import Orders from '../pages/orders.vue'
-import Goods from '../pages/goods.vue'
-import Users from '../pages/users.vue'
-import Imgs from '../pages/imgs.vue'
-import Financial from '../pages/financial.vue'
+import NotFound from '../pages/notFound.vue'
+import Login from '../pages/login.vue'
+// import store from '../store/index'
 
 const routes = [
   {
     path: '/',
-    redirect: '/orders'
+    redirect: '/system/users'
   },
   {
-    path: '/orders',
-    component: Orders
+    path: '/login',
+    component: Login
   },
   {
-    path: '/users',
-    component: Users
-  },
-  {
-    path: '/goods',
-    component: Goods
-  },
-  {
-    path: '/imgs',
-    component: Imgs
-  },
-  {
-    path: '/financial',
-    component: Financial
+    path: '*',
+    name: 'not-found',
+    component: NotFound
   }
 ]
 

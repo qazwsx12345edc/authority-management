@@ -8,25 +8,9 @@
         @select="menuItemSelected"
         v-model="selectedKeys"
       >
-        <a-menu-item key="users">
-          <a-icon type="team" />
-          <span>用户管理</span>
-        </a-menu-item>
-        <a-menu-item key="orders" :disabled="!isRootUser">
-          <a-icon type="unordered-list" />
-          <span>订单管理</span>
-        </a-menu-item>
-        <a-menu-item key="goods">
-          <a-icon type="shop" />
-          <span>商品管理</span>
-        </a-menu-item>
-        <a-menu-item key="imgs">
-          <a-icon type="file-image" />
-          <span>图片管理</span>
-        </a-menu-item>
-        <a-menu-item key="financial" :disabled="!isRootUser">
-          <a-icon type="transaction" />
-          <span>财务报表</span>
+        <a-menu-item v-for="item in routesData.children" :key="item.path">
+          <a-icon :type="menuIcon(item)" />
+          <span>{{ menuTitle(item) }}</span>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -37,7 +21,9 @@
           :type="collapsed ? 'menu-unfold' : 'menu-fold'"
           @click="onClickChangeCollapsed"
         />
-        <a-button type="danger" id="signout-btn" @click="onClickSignOut">退出</a-button>
+        <a-button type="danger" id="signout-btn" @click="onClickSignOut"
+          >退出</a-button
+        >
       </a-layout-header>
       <a-layout-content
         :style="{
@@ -60,7 +46,6 @@ export default {
   data() {
     return {
       collapsed: false,
-      selectedKeys: ["users"],
     };
   },
   methods: {
@@ -72,25 +57,25 @@ export default {
     },
 
     menuItemSelected(event) {
-      this.$router.push("/" + event.key);
+      this.$router.push(event.key);
     },
 
-    onClickSignOut(){
-      this.change_user_authority(null)
-      this.$message.success("sign out successfully")
+    onClickSignOut() {
+      this.change_user_authority(null);
+      this.change_routes_data({});
+      this.$router.push("/login");
+      location.reload()
     },
 
-    ...mapMutations(["change_user_authority"])
-  },
-
-  watch: {
-    $route(to) {
-      this.selectedKeys = [to.path.split("/")[1]];
+    menuTitle(item) {
+      return item.meta.title;
     },
-  },
 
-  mounted() {
-    this.$router.push("/users");
+    menuIcon(item) {
+      return item.meta.icon
+    },
+
+    ...mapMutations(["change_user_authority", "change_routes_data"]),
   },
 
   computed: {
@@ -98,7 +83,16 @@ export default {
       return this.userAuthority === "root";
     },
 
-    ...mapGetters(["userAuthority"]),
+    selectedKeys: {
+      get() {
+        return [this.$route.path];
+      },
+      set(value) {
+        console.log(value);
+      },
+    },
+
+    ...mapGetters(["userAuthority", "routesData"]),
   },
 };
 </script>
@@ -131,5 +125,9 @@ export default {
   float: right;
   margin-top: 15px;
   margin-right: 15px;
+}
+
+.hide-root-item {
+  display: none;
 }
 </style>
