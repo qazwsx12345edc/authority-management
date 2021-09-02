@@ -1,4 +1,5 @@
 import Mock from 'mockjs'
+const qs = require("qs")
 
 Mock.setup({
   timeout: 400
@@ -47,12 +48,16 @@ const menu = {
   ]
 }
 
-Mock.mock("/login", () => {
+Mock.mock("/login", req => {
   const login = {
     status: "ok",
     userAuthority: 3,
     time: Date.now(),
     menu: menu
+  }
+  const user = qs.parse(req.body).username
+  if (user === 'admin') {
+    login.userAuthority = 1
   }
   return login
 })

@@ -31,7 +31,7 @@ export default {
     ...mapGetters(["userAuthority", "availableMenu"]),
   },
 
-  mounted() {
+  created() {
     if (this.availableMenu.name) {
       this.addRoutes(this.availableMenu)
     }
