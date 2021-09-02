@@ -52,7 +52,7 @@ export default {
       this.password = "";
     },
 
-    ...mapMutations(["change_user_authority", "add_available_menu"]),
+    ...mapMutations(["change_user_authority", "add_available_routes"]),
 
     onClickLogin() {
       const loginData = {
@@ -69,36 +69,20 @@ export default {
       if (res.status === "ok") {
         this.$message.success("login successfully");
         this.change_user_authority(res.userAuthority);
-        this.getMenu(res.menu, res.userAuthority);
-        this.addRoutes(this.availableMenu)
+        this.getAvailableRoutes(res.userAuthority)
         this.$router.push("/system");
       }
     },
 
-    getMenu(menu, userAuthority) {
-      const children = menu.children.filter(item => {
-        return item.role.indexOf(userAuthority) > -1
+    getAvailableRoutes(userAuthority) {
+      const children = this.$router.options.routes[2].children
+      const availRoutes = children.filter(child => {
+        return child.meta.role.indexOf(userAuthority) > -1
       })
-      const availableMenu = menu
-      availableMenu.children = children
-      this.add_available_menu(availableMenu)
-    },
-
-    addRoutes(availableMenu) {
-      const dynamicRoutes = JSON.parse(JSON.stringify(availableMenu))
-      dynamicRoutes.component = this.$router.componentMapper[availableMenu.name]
-      const children = []
-      availableMenu.children.forEach(child => {
-        const childRoute = {
-          path: child.path,
-          name: child.name,
-          component: this.$router.componentMapper[child.name]
-        }
-        children.push(childRoute)
-      })
-      dynamicRoutes.children = children
-      this.$router.addRoutes([dynamicRoutes])
+      console.log(availRoutes)
+      this.add_available_routes(availRoutes)
     }
+
   },
 };
 </script>

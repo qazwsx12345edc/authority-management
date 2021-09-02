@@ -9,33 +9,12 @@ import { mapGetters } from "vuex";
 export default {
   name: "App",
   methods: {
-    addRoutes(availableMenu) {
-      const dynamicRoutes = JSON.parse(JSON.stringify(availableMenu));
-      dynamicRoutes.component =
-        this.$router.componentMapper[availableMenu.name];
-      const children = [];
-      availableMenu.children.forEach((child) => {
-        const childRoute = {
-          path: child.path,
-          name: child.name,
-          component: this.$router.componentMapper[child.name],
-        };
-        children.push(childRoute);
-      });
-      dynamicRoutes.children = children;
-      this.$router.addRoutes([dynamicRoutes]);
-    },
   },
 
   computed: {
-    ...mapGetters(["userAuthority", "availableMenu"]),
+    ...mapGetters(["userAuthority"]),
   },
 
-  created() {
-    if (this.availableMenu.name) {
-      this.addRoutes(this.availableMenu)
-    }
-  }
 };
 </script>
 

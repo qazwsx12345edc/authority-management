@@ -8,7 +8,7 @@
         @select="menuItemSelected"
         v-model="selectedKeys"
       >
-        <a-menu-item v-for="item in availableMenu.children" :key="item.path">
+        <a-menu-item v-for="item in availableRoutes" :key="item.path">
           <a-icon :type="menuIcon(item)" />
           <span>{{ menuTitle(item) }}</span>
         </a-menu-item>
@@ -62,27 +62,22 @@ export default {
 
     onClickSignOut() {
       this.change_user_authority(null);
-      this.add_available_menu({});
       this.$router.push("/login");
-      location.reload()
+      // location.reload()
     },
 
     menuTitle(item) {
-      return item.title;
+      return item.meta.title;
     },
 
     menuIcon(item) {
-      return item.icon
+      return item.meta.icon
     },
 
-    ...mapMutations(["change_user_authority", "add_available_menu"]),
+    ...mapMutations(["change_user_authority"]),
   },
 
   computed: {
-    isRootUser() {
-      return this.userAuthority === "root";
-    },
-
     selectedKeys: {
       get() {
         return [this.$route.path];
@@ -92,7 +87,7 @@ export default {
       },
     },
 
-    ...mapGetters(["userAuthority", "availableMenu"]),
+    ...mapGetters(["userAuthority", "availableRoutes"]),
   },
 };
 </script>
