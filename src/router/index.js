@@ -1,14 +1,9 @@
-/* eslint-disable no-unused-vars */
 import VueRouter from "vue-router";
 import NotFound from '../pages/notFound.vue'
 import Login from '../pages/login.vue'
-// import store from '../store/index'
+import store from '../store/index'
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/system/users'
-  },
   {
     path: '/login',
     component: Login
@@ -35,12 +30,24 @@ const router = new VueRouter({
 
 router.componentMapper = componentMapper
 
-// router.beforeEach((to, from, next) => {
-//   console.log(store.state.routesData)
-//   if (store.state.userAuthority) {
-//     router.addRoutes([store.state.routesData])
-//   }
-//   next()
-// })
+router.beforeEach((to, from, next) => {
+  const userAuthority = store.state.userAuthority
+  if (userAuthority) {
+    if (to.path === '/') {
+      next('/system')
+    }
+    else {
+      next()
+    }
+  }
+  else {
+    if (to.path === '/') {
+      next('/login')
+    }
+    else {
+      next()
+    }
+  }
+})
 
 export default router
