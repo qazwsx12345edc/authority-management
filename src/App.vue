@@ -6,35 +6,36 @@
 
 <script>
 import { mapGetters } from "vuex";
-import dynamicRoutes from "./router/dynamicRoutes"
 export default {
   name: "App",
   methods: {
-    addRoutes(routesData, userAuthority) {
-      let children = [];
-      if (userAuthority === "root") {
-        children = routesData.children;
-      } else {
-        children = routesData.children.filter((child) => {
-          return child.meta.level === "normal";
-        });
-      }
-      let data = JSON.parse(JSON.stringify(routesData));
-      data.children = children;
-      this.$router.addRoutes([data]);
-      console.log(data)
+    addRoutes(availableMenu) {
+      const dynamicRoutes = JSON.parse(JSON.stringify(availableMenu));
+      dynamicRoutes.component =
+        this.$router.componentMapper[availableMenu.name];
+      const children = [];
+      availableMenu.children.forEach((child) => {
+        const childRoute = {
+          path: child.path,
+          name: child.name,
+          component: this.$router.componentMapper[child.name],
+        };
+        children.push(childRoute);
+      });
+      dynamicRoutes.children = children;
+      this.$router.addRoutes([dynamicRoutes]);
     },
   },
 
-  mounted() {
-    addEventListener("onunload", () => {
-      this.addRoutes(dynamicRoutes, this.userAuthority)
-    })
+  computed: {
+    ...mapGetters(["userAuthority", "availableMenu"]),
   },
 
-  computed: {
-    ...mapGetters(["userAuthority"]),
-  },
+  mounted() {
+    if (this.availableMenu.name) {
+      this.addRoutes(this.availableMenu)
+    }
+  }
 };
 </script>
 

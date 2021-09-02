@@ -35,7 +35,6 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import { post } from "../axios/index.js";
-import dynamicRoutes from "../router/dynamicRoutes";
 
 export default {
   data() {
@@ -45,7 +44,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["routesData", "userAuthority"]),
+    ...mapGetters(["availableMenu", "userAuthority"]),
   },
   methods: {
     refreshPassword() {
@@ -53,7 +52,7 @@ export default {
       this.password = "";
     },
 
-    ...mapMutations(["change_user_authority", "change_routes_data"]),
+    ...mapMutations(["change_user_authority", "add_available_menu"]),
 
     onClickLogin() {
       const loginData = {
@@ -70,27 +69,36 @@ export default {
       if (res.status === "ok") {
         this.$message.success("login successfully");
         this.change_user_authority(res.userAuthority);
-        this.addRoutes(dynamicRoutes, res.userAuthority);
+        this.getMenu(res.menu, res.userAuthority);
+        this.addRoutes(this.availableMenu)
         this.$router.push("/system");
       }
     },
 
-    addRoutes(routesData, userAuthority) {
-      let children = [];
-      if (userAuthority === "root") {
-        children = routesData.children;
-      } else {
-        children = routesData.children.filter((child) => {
-          return child.meta.level === "normal";
-        });
-      }
-      let data = routesData;
-      data.children = children;
-      this.change_routes_data(data);
-      sessionStorage.setItem("routesData", JSON.stringify(data));
-      this.$router.addRoutes([data]);
-      console.log(this.$router)
+    getMenu(menu, userAuthority) {
+      const children = menu.children.filter(item => {
+        return item.role.indexOf(userAuthority) > -1
+      })
+      const availableMenu = menu
+      availableMenu.children = children
+      this.add_available_menu(availableMenu)
     },
+
+    addRoutes(availableMenu) {
+      const dynamicRoutes = JSON.parse(JSON.stringify(availableMenu))
+      dynamicRoutes.component = this.$router.componentMapper[availableMenu.name]
+      const children = []
+      availableMenu.children.forEach(child => {
+        const childRoute = {
+          path: child.path,
+          name: child.name,
+          component: this.$router.componentMapper[child.name]
+        }
+        children.push(childRoute)
+      })
+      dynamicRoutes.children = children
+      this.$router.addRoutes([dynamicRoutes])
+    }
   },
 };
 </script>

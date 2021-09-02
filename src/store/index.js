@@ -7,20 +7,20 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     userAuthority: null,
-    routesData: {}
+    availableMenu: {}
   },
   mutations: {
-    change_user_authority(state, value){
+    change_user_authority(state, value) {
       state.userAuthority = value
     },
 
-    change_routes_data(state, value) {
-      state.routesData = value
+    add_available_menu(state, value) {
+      state.availableMenu = value
     }
   },
   getters: {
     userAuthority: state => state.userAuthority,
-    routesData: state => state.routesData
+    availableMenu: state => state.availableMenu
   },
   actions: {
 
